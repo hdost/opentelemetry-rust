@@ -19,7 +19,7 @@ pub struct JaegerRemoteSamplerBuilder<C, S, R>
 where
     R: TraceRuntime,
     C: HttpClient + 'static,
-    S: ShouldSample + 'static,
+    S: ShouldSample,
 {
     pub(crate) update_interval: Duration,
     pub(crate) client: C,
@@ -33,7 +33,7 @@ where
 impl<C, S, R> JaegerRemoteSamplerBuilder<C, S, R>
 where
     C: HttpClient + 'static,
-    S: ShouldSample + 'static,
+    S: ShouldSample,
     R: TraceRuntime,
 {
     pub(crate) fn new<Svc>(
@@ -128,7 +128,7 @@ where
 #[derive(Clone, Debug)]
 pub struct JaegerRemoteSampler {
     inner: Arc<Inner>,
-    default_sampler: Arc<dyn ShouldSample + 'static>,
+    default_sampler: Arc<dyn ShouldSample>,
 }
 
 impl JaegerRemoteSampler {
@@ -143,7 +143,7 @@ impl JaegerRemoteSampler {
     where
         R: TraceRuntime,
         C: HttpClient + 'static,
-        S: ShouldSample + 'static,
+        S: ShouldSample,
     {
         let (shutdown_tx, shutdown_rx) = futures_channel::mpsc::channel(1);
         let inner = Arc::new(Inner::new(leaky_bucket_size, shutdown_tx));

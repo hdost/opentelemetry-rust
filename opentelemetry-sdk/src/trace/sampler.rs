@@ -66,7 +66,7 @@ use opentelemetry_http::HttpClient;
 /// [`SpanProcessor`]: crate::trace::SpanProcessor
 /// [`Span`]: opentelemetry_api::trace::Span
 /// [`Span::is_recording()`]: opentelemetry_api::trace::Span#tymethod.is_recording
-pub trait ShouldSample: Send + Sync + std::fmt::Debug {
+pub trait ShouldSample: CloneShouldSample + Send + Sync + std::fmt::Debug {
     /// Returns the [`SamplingDecision`] for a [`Span`] to be created.
     ///
     /// The [`should_sample`] function can use any of the information provided to it in order to
@@ -88,6 +88,23 @@ pub trait ShouldSample: Send + Sync + std::fmt::Debug {
     ) -> SamplingResult;
 }
 
+pub trait CloneShouldSample {
+    fn box_clone(&self) -> Box<dyn ShouldSample>;
+}
+
+
+impl<T> CloneShouldSample for T where T: ShouldSample + Clone + 'static {
+    fn box_clone(&self) -> Box<dyn ShouldSample> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn ShouldSample> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
+}
+
 /// Default Sampling options
 ///
 /// The [built-in samplers] allow for simple decisions. For more complex scenarios consider
@@ -102,7 +119,7 @@ pub enum Sampler {
     /// Never sample the trace
     AlwaysOff,
     /// Respects the parent span's sampling decision or delegates a delegate sampler for root spans.
-    ParentBased(Box<Sampler>),
+    ParentBased(Box<dyn ShouldSample>),
     /// Sample a given fraction of traces. Fractions >= 1 will always sample. If the parent span is
     /// sampled, then it's child spans will automatically be sampled. Fractions < 0 are treated as
     /// zero, but spans may still be sampled if their parent is.
