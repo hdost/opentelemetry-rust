@@ -38,7 +38,7 @@ impl Default for Collector {
         Collector {
             volumes: HashMap::from([(
                 "./otel-collector-config.yaml".into(),
-                "/etc/otelcol/config.yaml".into(),
+                "/etc/otelcol/config.yaml:Z".into(),
             )]),
         }
     }

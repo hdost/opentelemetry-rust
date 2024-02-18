@@ -39,22 +39,17 @@ fn init_tracer() -> Result<sdktrace::Tracer, TraceError> {
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .http()
-                .with_endpoint("http://localhost:4318/v1/traces"),
+                .with_endpoint("http://localhost:4318"),
         )
         .install_batch(opentelemetry_sdk::runtime::Tokio)
 }
 
 fn init_metrics() -> metrics::Result<sdkmetrics::SdkMeterProvider> {
-    let export_config = opentelemetry_otlp::ExportConfig {
-        endpoint: "http://localhost:4318/v1/metrics".to_string(),
-        ..opentelemetry_otlp::ExportConfig::default()
-    };
     opentelemetry_otlp::new_pipeline()
         .metrics(opentelemetry_sdk::runtime::Tokio)
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .http()
-                .with_export_config(export_config),
         )
         .build()
 }

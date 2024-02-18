@@ -27,7 +27,7 @@ impl TestSuite {
 
     pub fn result_file_path_in_container(&self) -> String {
         format!(
-            "/{}/{}",
+            "/{}/{}:Z",
             TEST_RESULT_DIR_IN_CONTAINER, self.result_file_path
         )
     }
